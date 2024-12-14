@@ -46,18 +46,54 @@ const Camping = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
     }
   };
 
+  // Touch events for mobile devices
+  const handleTouchStart = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsRotating(true);
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    lastX.current = clientX;
+  }
+
+  const handleTouchEnd = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsRotating(false);
+  }
+
+  const handleTouchMove = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (isRotating) {
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const delta = (clientX - lastX.current) / viewport.width;
+
+      islandRef.current.rotation.y += delta * 0.01 * Math.PI;
+      lastX.current = clientX;
+      rotationSpeed.current = delta * 0.01 * Math.PI;
+    }
+  }
+
   useEffect(() => {
     // Add event listeners for pointer and keyboard events
     const canvas = gl.domElement;
     canvas.addEventListener("pointerdown", handlePointerDown);
     canvas.addEventListener("pointerup", handlePointerUp);
     canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("touchstart", handleTouchStart);
+    canvas.addEventListener("touchend", handleTouchEnd);
+    canvas.addEventListener("touchmove", handleTouchMove);
 
     // Remove event listeners when component unmounts
     return () => {
       canvas.removeEventListener("pointerdown", handlePointerDown);
       canvas.removeEventListener("pointerup", handlePointerUp);
       canvas.removeEventListener("pointermove", handlePointerMove);
+      canvas.removeEventListener("touchstart", handleTouchStart);
+      canvas.removeEventListener("touchend", handleTouchEnd);
+      canvas.removeEventListener("touchmove", handleTouchMove);
     };
   }, [gl, handlePointerDown, handlePointerUp, handlePointerMove]);
 
@@ -88,9 +124,9 @@ const Camping = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
       { start: 6.3, end: 5.2, stage: 4 },     // Fourth stage
     ];
 
-    
+
     //console.log('rotation', normalizedRotation);
-    
+
     // Find the current stage
     const currentStageObj = stages.find(
       s => normalizedRotation >= s.start && normalizedRotation <= s.end
@@ -106,7 +142,7 @@ const Camping = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
 
 
   return (
-    <a.group 
+    <a.group
       ref={campingRef}
       {...props}>
       <group rotation={[-Math.PI / 2, 0, 0]}>
