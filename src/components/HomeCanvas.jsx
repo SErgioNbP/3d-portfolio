@@ -5,6 +5,7 @@ import HomeInfo from "./HomeInfo";
 import Loader from "./Loader";
 import Sky from "../models/Sky";
 import Camping from "../models/Camping";
+import instructions from '../assets/instructions.gif';
 
 const HomeCanvas = () => {
   const [hideInstructions, setHideInstructions] = useState(false);
@@ -56,7 +57,7 @@ const HomeCanvas = () => {
         >
           <img
           
-            src="src/assets/instructions.gif"
+            src={instructions}
             alt="Swipe instructions"
             className="w-6 mx-auto mb-2 opacity-85"
           />
